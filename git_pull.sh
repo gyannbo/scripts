@@ -7,7 +7,7 @@
 # softwares like ghidra, neovim and all other gits one can have but does nothing with).
                                 
 #  is LANG right ?             #
-if [ "$(env | grep '^LANG')" != "LANG=en_US" ]    ## change to match what is not en-US
+if [ "$(env | grep '^LANG')" != "LANG=en_US" ]
 then
 	export LANG=en_US
 fi
@@ -15,7 +15,7 @@ fi
 #  remplir ignoregits tab      #
 ignoregits[0]="begin"
 i=0
-while [ -n "${ignoregits[$i]}" ]				## why do i need the quotes here  : https://askubuntu.com/questions/1056950/bash-empty-string-comparison-behavior
+while [ -n "${ignoregits[$i]}" ]
 	do
 		let " i += 1 "
 		ignoregits[$i]=$(awk "NR==$i" /home/gbonis/scripts/data/ignoregits )
@@ -26,7 +26,7 @@ sysgits[0]="begin"
 i=0
 find ~ -name '.git' > temp
 sed -i 's/\/\.git//g' temp
-while [ -n "${sysgits[$i]}" ]				## why do i need the quotes here  : https://askubuntu.com/questions/1056950/bash-empty-string-comparison-behavior
+while [ -n "${sysgits[$i]}" ]
 	do
 		let " i += 1 "
 		sysgits[$i]=$(awk "NR==$i" temp)
@@ -77,18 +77,3 @@ while [ true ]
 		fi
 	done
 exit
-
-
-## TODO
-## SCRIPTS LIST ALL SYSTEM GITS 
-## -err check, if data/ignoregits exist, and so on
-## faire un script aussi pour pull quand j'arrive au début de la journée. Voir meme un script qui prends les deux possibilitées.
-
-## LOG :
-## if origin/main instead of origin/master, failed the tests
-## some repo have a .git but fail a git status. Doesnt matter, will put them in the ignoregits.
-## system can be in another language and can fail the tests
-## BUG: lorsqu'on créer un fichier, il se créer dans l'environnement d'ou on lance le script, donc j'étais dans les repos git que
-## je testais, il créait le fichier temp et donc quand il faisait un git status le repo n'était pas clean. Maintenant je supprime
-## temp avant de faire les git status donc pas de problème je peux lançer les scripts de n'importe où.
- ## aussi pourquoi il faut tj des spaces, et des doubles [[   ## need both cases for program to be accurate
