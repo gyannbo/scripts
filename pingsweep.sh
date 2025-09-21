@@ -8,10 +8,11 @@
 
 
 ##   faire le calcul de mask avec des bitwise operator pour arreter le programme
+##	 probablement un case avec les 32 possibilités dans un autre fichier sera plus rapide
+##   je n'aurais qu'a borner avec une autre variable 'endbyte' sur les while du main loop
 
-# bug si masque comporte un chiffre
-# bug si octet plus que 255
-# faire en sort que si pas de masque dans l'adresse du prompt, le prompter
+# verifier le masque
+# faire en sorte que si pas de masque dans l'adresse du prompt, le prompter
 ## possibilité de faire $(( $var + $var2 ))
 ## command cut ?
 ## tous les trucs avec les ip sont faisable avec cut -b je pense
@@ -19,7 +20,7 @@
 
 
 
-read -p "enter a network address to ping sweep : " address trash
+read -p "enter a network address to ping sweep (x.x.x.x/mask): " address trash
 if [[ -z $address ]]
 then
 		echo "nothing typed"
@@ -28,27 +29,30 @@ fi
 
 ## rajouter calcul de masque et sanitize user input
 ##if [[ -n $(echo $address | sed -r 's/([0-9\.]*)//') ]]
-if [[ -n $(echo $address | sed -r 's/[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\/[0-9]{2}//') ]]
+if [[ -n $(echo $address | sed -r 's/[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*.*//') ]]
 then
 	echo "address typed is invalid"
 	exit
 fi
 
-byte1=$(echo $address | sed -r 's/([0-9]*)\.[0-9]*\.[0-9]*\.[0-9]*/\1/')
-byte2=$(echo $address | sed -r 's/[0-9]*\.([0-9]*)\.[0-9]*\.[0-9]*/\1/')
-byte3=$(echo $address | sed -r 's/[0-9]*\.[0-9]*\.([0-9]*)\.[0-9]*/\1/')
-byte4=$(echo $address | sed -r 's/[0-9]*\.[0-9]*\.[0-9]*\.([0-9]*)/\1/')
+byte1=$(echo $address | sed -r 's/([0-9]*)\.[0-9]*\.[0-9]*\.[0-9]*.*/\1/')
+byte2=$(echo $address | sed -r 's/[0-9]*\.([0-9]*)\.[0-9]*\.[0-9]*.*/\1/')
+byte3=$(echo $address | sed -r 's/[0-9]*\.[0-9]*\.([0-9]*)\.[0-9]*.*/\1/')
+byte4=$(echo $address | sed -r 's/[0-9]*\.[0-9]*\.[0-9]*\.([0-9]*).*/\1/')
 array=([0]=$byte1 [1]=$byte2 [2]=$byte3 [3]=$byte4)
-#echo ${array[*]}  Print all array members
+#echo ${array[*]}   #  Print all array members
 
 
 ## gestion du mask, gérer si bien /n et aussi si n < 33
 
-mask=$(echo $address | sed -r 's/[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\/([0-9]{2})/\1/')
-if [[ $mask == * ]]
+mask=$(echo $address | sed -r 's/[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\/(.*)/\1/')
+
+# need a check here for garbage in mask (anything that is not /x or /xx or nothing after ip)
+
+if [[ $mask -gt 32 ]]
 then
-	echo $mask
-	exit
+	echo "mask invalid : $mask "
+	exit	
 fi
 
 i=0
@@ -56,14 +60,13 @@ while [[ $i -ne 4 ]]
 do
 	if [[ $(echo ${array[$i]}) -gt 255 ]]
 	then
-		echo "address typed not valid"
+		echo "address typed not valid, something weird in a byte : ${array[$i]}"
 		exit
 	fi
 	(( i++ ))
 done
 
 ## pouvoir kill le script avec ctrl-c
-
 trap exit SIGINT
 
 ## main loop
@@ -92,3 +95,13 @@ do
 	let "byte1=byte1 + 1"
 done
 
+
+
+
+###########################
+#		TESTING			  #
+###########################
+
+#192.168.0.0/-1
+#192.168888888.0.0/24
+#192.168.0.0/
