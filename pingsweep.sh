@@ -11,6 +11,9 @@
 ##	 probablement un case avec les 32 possibilités dans un autre fichier sera plus rapide
 ##   je n'aurais qu'a borner avec une autre variable 'endbyte' sur les while du main loop
 
+##   Probleme sur les main loops, on peut avoir 10.1.0.0 en adresse hote, donc mes retours a 1 ne fonctionne
+##   pas.
+
 # verifier le masque
 # faire en sorte que si pas de masque dans l'adresse du prompt, le prompter
 ## possibilité de faire $(( $var + $var2 ))
